@@ -4,7 +4,7 @@
 @section('header-title', 'Cuti')
 
 @section('content')
-<div class="grid" style="grid-template-columns: 2fr 1fr; gap: 32px;">
+<div class="leave-grid" style="display: grid; grid-template-columns: 2fr 1fr; gap: 32px;">
     <!-- Left Content -->
     <div class="space-y-8">
         <!-- Header -->
@@ -213,6 +213,44 @@
 </div>
 
 <style>
+    .leave-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 32px;
+    }
+
+    @media (max-width: 1024px) {
+        .leave-grid {
+            grid-template-columns: 1fr;
+        }
+        .leave-grid > div:last-child {
+            order: -1;
+        }
+        .leave-grid .card[style*="position: sticky"] {
+            position: relative;
+            top: 0;
+        }
+    }
+
+    @media (max-width: 640px) {
+        .leave-grid .grid.grid-cols-2 {
+            grid-template-columns: 1fr;
+        }
+        .leave-grid .flex.items-center.justify-between {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 16px;
+        }
+        .leave-grid .btn-primary {
+            width: 100%;
+            justify-content: center;
+        }
+        .leave-grid .card .flex.items-center.justify-between {
+            flex-direction: row;
+            align-items: center;
+        }
+    }
+
     .modal-overlay {
         position: fixed;
         inset: 0;

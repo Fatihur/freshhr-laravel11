@@ -4,7 +4,7 @@
 @section('header-title', 'Detail Pengajuan Cuti')
 
 @section('content')
-<div class="grid" style="grid-template-columns: 2fr 1fr; gap: 32px;">
+<div class="leave-detail-grid" style="display: grid; grid-template-columns: 2fr 1fr; gap: 32px;">
     <!-- Left Content -->
     <div class="space-y-6">
         <!-- Header Card -->
@@ -218,6 +218,44 @@
         </a>
     </div>
 </div>
+<style>
+    .leave-detail-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 32px;
+    }
+
+    @media (max-width: 1024px) {
+        .leave-detail-grid {
+            grid-template-columns: 1fr;
+        }
+        .leave-detail-grid > div:last-child {
+            order: -1;
+        }
+        .leave-detail-grid .card[style*="position: sticky"] {
+            position: relative;
+            top: 0;
+        }
+    }
+
+    @media (max-width: 640px) {
+        .leave-detail-grid .grid.grid-cols-3 {
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+        .leave-detail-grid .card > .flex.items-center.justify-between {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 16px;
+        }
+        .leave-detail-grid .card .badge {
+            align-self: flex-start;
+        }
+        .leave-detail-grid .flex.gap-3 {
+            flex-direction: column;
+        }
+    }
+</style>
 @endsection
 
 @push('scripts')

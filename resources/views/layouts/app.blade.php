@@ -1008,8 +1008,145 @@
         }
 
         .mobile-nav-item span {
-            font-size: 10px;
+            font-size: 9px;
             font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .mobile-nav-item button {
+            background: none;
+            border: none;
+            font-family: inherit;
+        }
+
+        @media (max-width: 380px) {
+            .mobile-nav-item span {
+                font-size: 8px;
+            }
+            .mobile-nav {
+                padding: 0 8px;
+            }
+            .mobile-nav-item {
+                padding: 6px 4px;
+            }
+        }
+
+        /* Mobile Menu Drawer */
+        .mobile-menu-drawer {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            background: rgba(15, 23, 42, 0.5);
+            backdrop-filter: blur(4px);
+        }
+
+        .mobile-menu-drawer.active {
+            display: block;
+        }
+
+        .mobile-menu-content {
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 85%;
+            max-width: 320px;
+            background: white;
+            overflow-y: auto;
+            animation: slideInRight 0.3s ease-out;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+            }
+            to {
+                transform: translateX(0);
+            }
+        }
+
+        .mobile-menu-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px;
+            border-bottom: 1px solid var(--slate-100);
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 10;
+        }
+
+        .mobile-menu-section {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--slate-100);
+        }
+
+        .mobile-menu-title {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--slate-400);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+            padding-left: 12px;
+        }
+
+        .mobile-menu-items {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .mobile-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 12px;
+            text-decoration: none;
+            color: var(--slate-700);
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+            border: none;
+            background: none;
+            width: 100%;
+            cursor: pointer;
+            text-align: left;
+        }
+
+        .mobile-menu-item:hover {
+            background: var(--slate-50);
+        }
+
+        .mobile-menu-item.active {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .mobile-menu-item.text-danger {
+            color: #ef4444;
+        }
+
+        .mobile-menu-item.text-danger:hover {
+            background: #fee2e2;
+        }
+
+        .mobile-menu-item svg {
+            width: 20px;
+            height: 20px;
+            color: var(--slate-400);
+            flex-shrink: 0;
+        }
+
+        .mobile-menu-item.active svg {
+            color: #15803d;
+        }
+
+        .mobile-menu-item.text-danger svg {
+            color: #ef4444;
         }
 
         /* Alert */
@@ -1338,18 +1475,119 @@
             <i data-lucide="file-text"></i>
             <span>Cuti</span>
         </a>
-        @if(in_array(auth()->user()?->role, ['dept_head', 'hr_admin', 'super_admin']))
-        <a href="{{ route('reports.index') }}" class="mobile-nav-item {{ request()->routeIs('reports.*') ? 'active' : '' }}">
-            <i data-lucide="bar-chart-3"></i>
-            <span>Laporan</span>
-        </a>
-        @else
         <a href="{{ route('schedule.index') }}" class="mobile-nav-item {{ request()->routeIs('schedule.*') ? 'active' : '' }}">
             <i data-lucide="calendar"></i>
             <span>Jadwal</span>
         </a>
-        @endif
+        <button type="button" class="mobile-nav-item" onclick="toggleMobileMenu()" id="mobileMenuBtn">
+            <i data-lucide="menu"></i>
+            <span>Menu</span>
+        </button>
     </nav>
+
+    <!-- Mobile Menu Drawer -->
+    <div id="mobileMenu" class="mobile-menu-drawer" onclick="if(event.target === this) toggleMobileMenu()">
+        <div class="mobile-menu-content">
+            <div class="mobile-menu-header">
+                <div class="flex items-center gap-3">
+                    <div style="width: 40px; height: 40px; background: var(--primary); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                        <span style="color: white; font-weight: 700; font-size: 18px;">F</span>
+                    </div>
+                    <span class="font-bold text-lg">Menu</span>
+                </div>
+                <button onclick="toggleMobileMenu()" style="width: 36px; height: 36px; border-radius: 50%; background: var(--slate-100); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                    <i data-lucide="x" style="width: 18px; height: 18px;"></i>
+                </button>
+            </div>
+
+            <div class="mobile-menu-section">
+                <p class="mobile-menu-title">Menu Utama</p>
+                <div class="mobile-menu-items">
+                    <a href="{{ route('dashboard') }}" class="mobile-menu-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+                        <i data-lucide="layout-dashboard"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="{{ route('attendance.index') }}" class="mobile-menu-item {{ request()->routeIs('attendance.*') ? 'active' : '' }}">
+                        <i data-lucide="map-pin"></i>
+                        <span>Absensi</span>
+                    </a>
+                    <a href="{{ route('schedule.index') }}" class="mobile-menu-item {{ request()->routeIs('schedule.*') ? 'active' : '' }}">
+                        <i data-lucide="calendar"></i>
+                        <span>Jadwal</span>
+                    </a>
+                    <a href="{{ route('leave.index') }}" class="mobile-menu-item {{ request()->routeIs('leave.*') ? 'active' : '' }}">
+                        <i data-lucide="file-text"></i>
+                        <span>Cuti</span>
+                    </a>
+                </div>
+            </div>
+
+            @if(in_array(auth()->user()?->role, ['dept_head', 'hr_admin', 'super_admin']))
+            <div class="mobile-menu-section">
+                <p class="mobile-menu-title">Manajer</p>
+                <div class="mobile-menu-items">
+                    <a href="{{ route('reports.index') }}" class="mobile-menu-item {{ request()->routeIs('reports.*') ? 'active' : '' }}">
+                        <i data-lucide="bar-chart-3"></i>
+                        <span>Laporan</span>
+                    </a>
+                </div>
+            </div>
+            @endif
+
+            @if(in_array(auth()->user()?->role, ['hr_admin', 'super_admin']))
+            <div class="mobile-menu-section">
+                <p class="mobile-menu-title">Manajemen HR</p>
+                <div class="mobile-menu-items">
+                    <a href="{{ route('management.employees.index') }}" class="mobile-menu-item {{ request()->routeIs('management.employees.*') ? 'active' : '' }}">
+                        <i data-lucide="user-check"></i>
+                        <span>Karyawan</span>
+                    </a>
+                    <a href="{{ route('management.positions.index') }}" class="mobile-menu-item {{ request()->routeIs('management.positions.*') ? 'active' : '' }}">
+                        <i data-lucide="briefcase"></i>
+                        <span>Jabatan</span>
+                    </a>
+                </div>
+            </div>
+            @endif
+
+            @if(auth()->user()?->role === 'super_admin')
+            <div class="mobile-menu-section">
+                <p class="mobile-menu-title">Admin Sistem</p>
+                <div class="mobile-menu-items">
+                    <a href="{{ route('management.users.index') }}" class="mobile-menu-item {{ request()->routeIs('management.users.*') ? 'active' : '' }}">
+                        <i data-lucide="shield-check"></i>
+                        <span>Pengguna</span>
+                    </a>
+                    <a href="{{ route('management.office.index') }}" class="mobile-menu-item {{ request()->routeIs('management.office.*') ? 'active' : '' }}">
+                        <i data-lucide="building-2"></i>
+                        <span>Kantor</span>
+                    </a>
+                    <a href="{{ route('management.audit_logs.index') }}" class="mobile-menu-item {{ request()->routeIs('management.audit_logs.*') ? 'active' : '' }}">
+                        <i data-lucide="clipboard-list"></i>
+                        <span>Audit Log</span>
+                    </a>
+                </div>
+            </div>
+            @endif
+
+            <div class="mobile-menu-section">
+                <p class="mobile-menu-title">Akun</p>
+                <div class="mobile-menu-items">
+                    <a href="{{ route('profile.edit') }}" class="mobile-menu-item {{ request()->routeIs('profile.*') ? 'active' : '' }}">
+                        <i data-lucide="user"></i>
+                        <span>Profil</span>
+                    </a>
+                    <form method="POST" action="{{ route('logout') }}" style="margin: 0;">
+                        @csrf
+                        <button type="submit" class="mobile-menu-item text-danger">
+                            <i data-lucide="log-out"></i>
+                            <span>Keluar</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
         // Initialize Lucide icons
@@ -1398,6 +1636,15 @@
                 }
             });
         });
+
+        // Mobile Menu Toggle
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            const btn = document.getElementById('mobileMenuBtn');
+            menu.classList.toggle('active');
+            btn.classList.toggle('active');
+            lucide.createIcons();
+        }
 
         // Sticky Header Scroll Effect
         const mainHeader = document.querySelector('.main-header');

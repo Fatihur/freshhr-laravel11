@@ -239,20 +239,68 @@
     }
 
     @media (max-width: 640px) {
+        .leave-detail-grid {
+            gap: 24px;
+        }
+
         .leave-detail-grid .grid.grid-cols-3 {
             grid-template-columns: 1fr;
             gap: 16px;
+            padding-top: 16px;
         }
+
         .leave-detail-grid .card > .flex.items-center.justify-between {
             flex-direction: column;
             align-items: flex-start;
             gap: 16px;
         }
+
         .leave-detail-grid .card .badge {
             align-self: flex-start;
         }
+
+        /* Header card improvements */
+        .leave-detail-grid .card:first-child .flex.items-center.gap-4 {
+            gap: 12px;
+        }
+
+        .leave-detail-grid .card:first-child .w-16 {
+            width: 48px !important;
+            height: 48px !important;
+            border-radius: 14px !important;
+        }
+
+        .leave-detail-grid .card:first-child h2 {
+            font-size: 16px;
+        }
+
+        .leave-detail-grid .card:first-child p {
+            font-size: 11px;
+        }
+
+        /* Action buttons */
         .leave-detail-grid .flex.gap-3 {
             flex-direction: column;
+        }
+
+        .leave-detail-grid .flex.gap-3 form,
+        .leave-detail-grid .flex.gap-3 .btn {
+            width: 100%;
+        }
+
+        /* Sidebar cards */
+        .leave-detail-grid > div:last-child .card {
+            padding: 20px;
+        }
+
+        .leave-detail-grid > div:last-child .w-12 {
+            width: 36px !important;
+            height: 36px !important;
+        }
+
+        .leave-detail-grid > div:last-child .avatar {
+            width: 40px !important;
+            height: 40px !important;
         }
     }
 </style>

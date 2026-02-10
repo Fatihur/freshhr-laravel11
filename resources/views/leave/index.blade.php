@@ -233,21 +233,89 @@
     }
 
     @media (max-width: 640px) {
+        .leave-grid {
+            gap: 24px;
+        }
+
         .leave-grid .grid.grid-cols-2 {
             grid-template-columns: 1fr;
         }
-        .leave-grid .flex.items-center.justify-between {
+
+        /* Header section */
+        .leave-grid > div:first-child > .flex.items-center.justify-between {
             flex-direction: column;
             align-items: flex-start;
             gap: 16px;
         }
+
         .leave-grid .btn-primary {
             width: 100%;
             justify-content: center;
         }
+
+        /* Stats cards */
+        .leave-grid .grid.grid-cols-2 .card {
+            padding: 20px;
+        }
+
+        .leave-grid .grid.grid-cols-2 .card .text-2xl {
+            font-size: 20px;
+        }
+
+        /* Leave request cards */
         .leave-grid .card .flex.items-center.justify-between {
-            flex-direction: row;
-            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .leave-grid .card .flex.items-center.gap-4 {
+            gap: 12px;
+        }
+
+        .leave-grid .card .flex.items-center.gap-4 > div:last-child {
+            min-width: 0;
+        }
+
+        .leave-grid .card .font-bold.text-slate-800 {
+            font-size: 14px;
+        }
+
+        .leave-grid .card .text-xs.text-slate-400 {
+            font-size: 11px;
+        }
+
+        /* Sidebar alur persetujuan */
+        .leave-grid > div:last-child .card {
+            padding: 24px;
+        }
+
+        .leave-grid > div:last-child h3 {
+            margin-bottom: 24px;
+        }
+
+        /* Modal mobile improvements */
+        .modal-content .card {
+            padding: 24px !important;
+            border-radius: 24px !important;
+        }
+
+        .modal-content h3 {
+            font-size: 18px;
+        }
+
+        .modal-content .grid.grid-cols-2 {
+            grid-template-columns: 1fr;
+        }
+
+        .modal-content .flex.gap-2 {
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            padding-bottom: 8px;
+        }
+
+        .modal-content label {
+            padding: 8px 16px !important;
+            font-size: 11px !important;
         }
     }
 

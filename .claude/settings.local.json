@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(php artisan test:*)",
+      "Bash(php artisan tinker:*)",
+      "Bash(findstr:*)",
+      "Bash(php artisan make:middleware:*)",
+      "Bash(php artisan make:test:*)",
+      "Bash(php artisan make:model:*)",
+      "Bash(php artisan make:migration:*)",
+      "Bash(php artisan migrate:*)",
+      "Bash(php artisan make:controller:*)",
+      "Bash(php artisan view:clear:*)",
+      "Bash(php artisan view:cache:*)",
+      "Bash(php artisan db:seed:*)",
+      "Bash(php artisan migrate:fresh:*)",
+      "Bash(php artisan cache:clear:*)",
+      "Bash(php artisan config:clear:*)",
+      "Bash(sqlite3 database/database.sqlite:*)",
+      "Bash(php artisan route:list:*)"
+    ]
+  }
+}

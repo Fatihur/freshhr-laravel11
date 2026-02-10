@@ -1,0 +1,485 @@
+{
+  "title": "Prompt Lengkap Pembuatan Sistem Absensi Berbasis Web (Next.js App Router + MySQL + Leaflet)",
+  "language": "id",
+  "context": {
+    "client_goal": "Membangun sistem absensi web yang memvalidasi kehadiran menggunakan lokasi GPS (geolocation) dan foto selfie, dilengkapi manajemen jadwal bulanan per departemen (draft/applied) dan pengajuan cuti berjenjang (Kepala Dept → HRM → GM).",
+    "scope_included": [
+      "Absensi Masuk & Pulang (GPS + Selfie)",
+      "Master Data (Karyawan, Jabatan, Departemen, Lokasi Kerja, Shift)",
+      "Jadwal Bulanan Departemen (Draft → Applied, pembatasan edit)",
+      "Cuti Berjenjang (Kepala Dept → HRM → GM)",
+      "Dashboard Monitoring",
+      "Laporan Harian & Bulanan + Filter",
+      "Audit Log aktivitas penting"
+    ],
+    "scope_excluded": [
+      "Tukar Shift",
+      "PWA",
+      "Absensi offline",
+      "Integrasi payroll",
+      "Notifikasi WhatsApp/Email",
+      "Export PDF/Excel (kecuali jika diminta kemudian)"
+    ],
+    "pricing_note": "Harga pengembangan Rp 7.000.000 dan hosting 6 bulan Rp 500.000 (total Rp 7.500.000)."
+  },
+  "tech_stack": {
+    "frontend_backend": {
+      "framework": "Laravel",
+      "version": "11",
+      "language": "PHP",
+      "approach": "Server-rendered Blade atau SPA via Inertia (Vue/React) sesuai preferensi",
+      "api": "Laravel API routes (routes/api.php) atau controller-based JSON responses"
+    },
+    "database": {
+      "db": "MySQL",
+      "orm": "Eloquent (Laravel ORM)"
+    },
+    "auth": {
+      "library": "Laravel Authentication ",
+      "strategy": "Session auth untuk web + token/Sanctum untuk API",
+      "session": "Session-based untuk UI; token/Sanctum untuk mobile/API"
+    },
+    "maps_location": {
+      "map": "Leaflet (frontend)",
+      "tiles": "OpenStreetMap",
+      "geolocation_api": "navigator.geolocation"
+    },
+    "camera": {
+      "web_api": "navigator.mediaDevices.getUserMedia",
+      "capture_method": "ambil frame dari video stream lalu upload multipart ke endpoint Laravel"
+    },
+    "ui": {
+      "styling": "Tailwind CSS",
+      "components": "Blade components atau component library untuk Inertia",
+      "tables": "Boleh pakai TanStack Table (opsional)"
+    }
+  },
+  "roles_and_permissions": {
+    "roles": [
+      "SUPER_ADMIN_IT",
+      "SUPER_ADMIN_GM",
+      "SUPER_ADMIN_HRM",
+      "ADMIN_HR",
+      "HEAD_DEPARTMENT",
+      "EMPLOYEE"
+    ],
+    "permission_rules": [
+      "SUPER_ADMIN_*: akses penuh, termasuk apply jadwal dan edit jadwal applied, serta approve cuti sesuai peran (HRM/GM).",
+      "ADMIN_HR: kelola master data, review & apply jadwal, edit jadwal applied, akses laporan.",
+      "HEAD_DEPARTMENT: input jadwal bulanan departemen (draft), ajukan jadwal, tidak bisa edit jika sudah applied, approve cuti tahap pertama.",
+      "EMPLOYEE: absen masuk/pulang, lihat jadwal & riwayat, ajukan cuti."
+    ]
+  },
+  "modules": [
+    {
+      "name": "Authentication & Authorization",
+      "requirements": [
+        "Login credentials (username/email + password).",
+        "Session management via Auth.js.",
+        "Helper/guard: requireAuth(), requireRole([...]).",
+        "Semua API route handler wajib validasi session dan role."
+      ]
+    },
+    {
+      "name": "Master Data",
+      "requirements": [
+        "CRUD Departemen",
+        "CRUD Jabatan",
+        "CRUD Karyawan (relasi ke departemen, jabatan, lokasi kerja, status aktif)",
+        "CRUD Lokasi Kerja (nama, lat, lng, radius meter, status aktif)",
+        "CRUD Shift (nama, jam masuk, jam pulang, toleransi terlambat menit)"
+      ],
+      "leaflet_requirements": [
+        "Form lokasi kerja harus ada peta Leaflet untuk memilih titik (klik peta) dan preview radius.",
+        "Simpan lat/lng & radius.",
+        "Tampilkan marker + circle radius pada halaman detail lokasi."
+      ]
+    },
+    {
+      "name": "Attendance (Absensi)",
+      "requirements": [
+        "Absen Masuk dan Absen Pulang.",
+        "Wajib mengambil GPS dari browser dan selfie dari kamera.",
+        "Waktu absensi menggunakan waktu server (bukan dari device).",
+        "Validasi radius lokasi kerja sesuai lokasi yang ter-assign ke karyawan (atau departemen).",
+        "Validasi jadwal: karyawan harus punya jadwal applied untuk hari tersebut.",
+        "Cegah double check-in (1x IN per hari).",
+        "Cegah check-out tanpa check-in.",
+        "Jika cuti disetujui pada tanggal tersebut, blok absensi."
+      ],
+      "status_rules": [
+        "VALID_ON_TIME",
+        "VALID_LATE (jika melebihi toleransi shift)",
+        "INVALID_OUT_OF_RADIUS",
+        "INVALID_NO_SCHEDULE",
+        "INVALID_ON_LEAVE",
+        "INVALID_ALREADY_CHECKED_IN",
+        "INVALID_NOT_CHECKED_IN_YET"
+      ]
+    },
+    {
+      "name": "Schedules (Jadwal Bulanan Departemen)",
+      "requirements": [
+        "Kepala Departemen dapat membuat jadwal bulanan untuk departemennya.",
+        "Jadwal disimpan sebagai DRAFT.",
+        "Kepala Departemen mengajukan jadwal untuk direview.",
+        "Admin HR / Super Admin dapat APPLY jadwal (status APPLIED).",
+        "Setelah APPLIED, Kepala Dept tidak bisa edit.",
+        "Admin HR / Super Admin boleh edit jadwal APPLIED (audit log wajib).",
+        "Jadwal berisi detail per karyawan per tanggal dengan shift yang dipilih."
+      ],
+      "schedule_states": ["DRAFT", "SUBMITTED", "APPLIED", "REJECTED"]
+    },
+    {
+      "name": "Leave (Cuti) - Approval Berjenjang",
+      "requirements": [
+        "Karyawan dapat mengajukan cuti: jenis, rentang tanggal, keterangan.",
+        "Tahap approval: Kepala Departemen → HRM → GM.",
+        "Jika ditolak di salah satu tahap, status akhir: REJECTED dan berhenti.",
+        "Jika disetujui semua tahap, status akhir: APPROVED.",
+        "Jika APPROVED, sistem menandai tanggal cuti pada jadwal dan memblok absensi."
+      ],
+      "leave_states": [
+        "PENDING_HEAD_DEPT",
+        "PENDING_HRM",
+        "PENDING_GM",
+        "APPROVED",
+        "REJECTED"
+      ]
+    },
+    {
+      "name": "Dashboard & Reports",
+      "requirements": [
+        "Dashboard ringkas: hadir hari ini, terlambat, belum absen pulang, absensi tidak valid.",
+        "Laporan harian: filter tanggal, departemen, karyawan, lokasi.",
+        "Laporan bulanan: rekap per karyawan: hadir, terlambat, tidak hadir, ringkasan jam kerja (opsional).",
+        "Riwayat absensi untuk karyawan (self only)."
+      ]
+    },
+    {
+      "name": "Audit Logs",
+      "requirements": [
+        "Catat aktivitas penting: apply jadwal, edit jadwal applied, approval/reject cuti, perubahan lokasi kerja.",
+        "Simpan: actor_user_id, action, entity_type, entity_id, before_json, after_json, timestamp."
+      ]
+    }
+  ],
+  "pages_and_user_flows": {
+    "common_pages": [
+      "Login",
+      "Dashboard (sesuai role)"
+    ],
+    "employee_pages": [
+      "Absen Masuk",
+      "Absen Pulang",
+      "Jadwal Saya",
+      "Riwayat Absensi Saya",
+      "Ajukan Cuti",
+      "Status Pengajuan Cuti"
+    ],
+    "head_department_pages": [
+      "Jadwal Bulanan Departemen (Buat Draft)",
+      "Ajukan Jadwal",
+      "Daftar Jadwal (Draft/Submitted/Applied)",
+      "Approval Cuti (Tahap 1)"
+    ],
+    "admin_hr_pages": [
+      "Master Data (Dept, Jabatan, Karyawan, Lokasi, Shift)",
+      "Review Jadwal Bulanan",
+      "Apply Jadwal",
+      "Edit Jadwal Applied",
+      "Laporan Harian",
+      "Laporan Bulanan"
+    ],
+    "super_admin_pages": [
+      "Semua halaman Admin HR",
+      "Manajemen User & Role (jika dipisah)",
+      "Audit Logs"
+    ],
+    "key_flow_absen": [
+      "User buka Absen Masuk/Pulang → minta izin lokasi & kamera → ambil GPS → ambil selfie → validasi radius & jadwal → simpan → tampilkan status."
+    ],
+    "key_flow_schedule": [
+      "Kepala Dept buat draft jadwal → submit → Admin HR review → apply → jadwal aktif dipakai absensi."
+    ],
+    "key_flow_leave": [
+      "Karyawan ajukan cuti → Kepala Dept approve/reject → HRM approve/reject → GM approve/reject → jika approved blok absensi sesuai tanggal."
+    ]
+  },
+  "api_contracts": {
+    "base": "/api",
+    "endpoints": [
+      {
+        "method": "POST",
+        "path": "/auth/login",
+        "desc": "Login via Auth.js (umumnya handled oleh auth library)."
+      },
+      {
+        "method": "GET",
+        "path": "/master/work-locations",
+        "desc": "List lokasi kerja"
+      },
+      {
+        "method": "POST",
+        "path": "/master/work-locations",
+        "desc": "Create lokasi kerja"
+      },
+      {
+        "method": "POST",
+        "path": "/attendance/check-in",
+        "desc": "Absen masuk (multipart: selfie + lat/lng)"
+      },
+      {
+        "method": "POST",
+        "path": "/attendance/check-out",
+        "desc": "Absen pulang (multipart: selfie + lat/lng)"
+      },
+      {
+        "method": "POST",
+        "path": "/schedules/monthly",
+        "desc": "Kepala dept buat jadwal bulanan (draft)"
+      },
+      {
+        "method": "POST",
+        "path": "/schedules/:id/submit",
+        "desc": "Submit jadwal draft"
+      },
+      {
+        "method": "POST",
+        "path": "/schedules/:id/apply",
+        "desc": "Apply jadwal (Admin HR/Super Admin)"
+      },
+      {
+        "method": "PATCH",
+        "path": "/schedules/:id",
+        "desc": "Edit jadwal (hanya Admin HR/Super Admin jika APPLIED)"
+      },
+      {
+        "method": "POST",
+        "path": "/leaves",
+        "desc": "Karyawan ajukan cuti"
+      },
+      {
+        "method": "POST",
+        "path": "/leaves/:id/approve",
+        "desc": "Approve cuti sesuai tahapan role"
+      },
+      {
+        "method": "POST",
+        "path": "/leaves/:id/reject",
+        "desc": "Reject cuti sesuai tahapan role"
+      },
+      {
+        "method": "GET",
+        "path": "/reports/daily",
+        "desc": "Laporan harian (filter query params)"
+      },
+      {
+        "method": "GET",
+        "path": "/reports/monthly",
+        "desc": "Laporan bulanan (filter query params)"
+      },
+      {
+        "method": "GET",
+        "path": "/audit-logs",
+        "desc": "List audit logs (Super Admin)"
+      }
+    ],
+    "notes": [
+      "API diimplementasikan sebagai Laravel API routes/controllers (routes/api.php, app/Http/Controllers)",
+      "Gunakan Laravel Form Requests / Validator untuk validasi input server-side",
+      "Semua endpoint wajib middleware auth:sanctum atau auth dan pengecekan role via Gates/Policies"
+    ]
+  },
+  "database_schema_high_level": {
+    "tables": [
+      {
+        "name": "users",
+        "fields": ["id", "email", "password_hash", "role", "created_at", "updated_at"]
+      },
+      {
+        "name": "employees",
+        "fields": [
+          "id",
+          "user_id",
+          "employee_code",
+          "full_name",
+          "department_id",
+          "position_id",
+          "work_location_id",
+          "is_active",
+          "created_at",
+          "updated_at"
+        ]
+      },
+      {
+        "name": "departments",
+        "fields": ["id", "name", "head_employee_id", "created_at", "updated_at"]
+      },
+      {
+        "name": "positions",
+        "fields": ["id", "name", "created_at", "updated_at"]
+      },
+      {
+        "name": "work_locations",
+        "fields": ["id", "name", "lat", "lng", "radius_m", "is_active", "created_at", "updated_at"]
+      },
+      {
+        "name": "shifts",
+        "fields": ["id", "name", "start_time", "end_time", "late_tolerance_min", "created_at", "updated_at"]
+      },
+      {
+        "name": "schedules",
+        "fields": ["id", "department_id", "month", "year", "status", "created_by", "applied_by", "created_at", "updated_at"]
+      },
+      {
+        "name": "schedule_details",
+        "fields": ["id", "schedule_id", "employee_id", "date", "shift_id", "created_at", "updated_at"]
+      },
+      {
+        "name": "attendances",
+        "fields": [
+          "id",
+          "employee_id",
+          "date",
+          "check_in_at",
+          "check_in_lat",
+          "check_in_lng",
+          "check_in_selfie_path",
+          "check_in_status",
+          "check_out_at",
+          "check_out_lat",
+          "check_out_lng",
+          "check_out_selfie_path",
+          "check_out_status",
+          "created_at",
+          "updated_at"
+        ]
+      },
+      {
+        "name": "leave_requests",
+        "fields": ["id", "employee_id", "type", "start_date", "end_date", "reason", "status", "created_at", "updated_at"]
+      },
+      {
+        "name": "leave_approvals",
+        "fields": ["id", "leave_request_id", "stage", "approver_user_id", "decision", "note", "decided_at"]
+      },
+      {
+        "name": "audit_logs",
+        "fields": ["id", "actor_user_id", "action", "entity_type", "entity_id", "before_json", "after_json", "created_at"]
+      }
+    ],
+    "indexes": [
+      "attendances(employee_id, date) UNIQUE",
+      "schedule_details(employee_id, date)",
+      "leave_requests(employee_id, start_date, end_date)"
+    ]
+  },
+  "business_rules": {
+    "attendance": [
+      "Check-in hanya 1x per hari per employee.",
+      "Check-out hanya boleh jika sudah check-in pada hari yang sama.",
+      "Absensi ditolak jika tidak ada jadwal APPLIED pada tanggal tersebut.",
+      "Absensi ditolak jika status cuti APPROVED pada tanggal tersebut.",
+      "Validasi radius: hitung jarak (Haversine) antara GPS user dan titik lokasi kerja; jika > radius_m maka invalid."
+    ],
+    "schedule": [
+      "HEAD_DEPARTMENT boleh create/edit schedule hanya saat status DRAFT.",
+      "HEAD_DEPARTMENT hanya boleh mengelola schedule untuk departemennya.",
+      "Setelah schedule APPLIED, hanya ADMIN_HR atau SUPER_ADMIN yang boleh edit.",
+      "Apply schedule harus menghasilkan audit log."
+    ],
+    "leave": [
+      "Tahapan persetujuan: HEAD_DEPARTMENT → HRM → GM.",
+      "Jika ditolak pada tahap apa pun: status REJECTED dan proses berhenti.",
+      "Jika semua tahap approved: status APPROVED.",
+      "Saat APPROVED: sistem memblok absensi pada rentang tanggal cuti."
+    ]
+  },
+  "ui_ux_requirements": {
+    "general": [
+      "Mobile-first, karena absensi mayoritas dari HP.",
+      "Tombol Absen Masuk/Pulang harus jelas, besar, dan mudah diakses.",
+      "Tampilkan feedback izin lokasi/kamera (loading + error message).",
+      "Saat validasi gagal, tampilkan alasan spesifik (mis: di luar radius / belum ada jadwal / sedang cuti)."
+    ],
+    "attendance_ui": [
+      "Preview kamera sebelum capture selfie.",
+      "Tampilkan koordinat dan map mini (opsional) sebelum submit.",
+      "Tampilkan status hasil absensi setelah submit."
+    ],
+    "schedule_ui": [
+      "Input jadwal bulanan berbentuk kalender atau tabel (karyawan x tanggal).",
+      "Ada indikator status DRAFT / SUBMITTED / APPLIED.",
+      "Jika APPLIED, tombol edit disembunyikan untuk Kepala Dept."
+    ],
+    "leave_ui": [
+      "Form pengajuan cuti dengan date range picker.",
+      "Halaman approval menampilkan detail cuti + tombol approve/reject + catatan."
+    ],
+    "report_ui": [
+      "Filter di bagian atas, hasil tabel di bawah, pagination.",
+      "Laporan bulanan menampilkan rekap per karyawan."
+    ]
+  },
+  "non_functional_requirements": {
+    "security": [
+      "Semua endpoint harus auth-protected.",
+      "Validasi file upload: tipe image, max size, sanitize filename.",
+      "Simpan selfie dengan path unik (uuid) dan struktur folder per tanggal."
+    ],
+    "performance": [
+      "Gunakan pagination di semua listing data.",
+      "Gunakan indexing sesuai tabel di schema.",
+      "Laporan bulanan dioptimalkan dengan query agregasi."
+    ],
+    "reliability": [
+      "Gunakan transaction untuk: apply schedule, approval cuti, proses absensi.",
+      "Setiap perubahan kritikal menghasilkan audit log."
+    ],
+    "compatibility": [
+      "Support Chrome Android, Safari iOS (sejauh dukungan getUserMedia), dan desktop modern."
+    ]
+  },
+  "acceptance_criteria": [
+    "Karyawan dapat check-in dengan GPS+Selfie dan status VALID jika dalam radius dan ada jadwal APPLIED.",
+    "Sistem menolak check-in jika di luar radius dengan status INVALID_OUT_OF_RADIUS.",
+    "Sistem menolak check-out jika belum check-in hari itu.",
+    "Kepala Dept bisa membuat schedule DRAFT untuk departemennya dan submit.",
+    "Admin HR bisa apply schedule dan setelah itu schedule dipakai untuk validasi absensi.",
+    "Kepala Dept tidak bisa edit schedule APPLIED.",
+    "Karyawan bisa mengajukan cuti, dan cuti harus melalui persetujuan berjenjang sampai GM.",
+    "Jika cuti APPROVED, absensi pada tanggal cuti diblok.",
+    "Laporan harian dan bulanan bisa difilter dan menampilkan data sesuai kriteria."
+  ],
+  "deliverables": [
+    "Source code Next.js (App Router) + konfigurasi Prisma + migrasi DB",
+    "Halaman UI per role",
+    "API Route Handlers lengkap",
+    "Database schema + seed data minimal",
+    "Audit log aktif",
+    "Konfigurasi hosting (6 bulan) dan guideline deploy (opsional jika diperlukan oleh client)"
+  ],
+  "implementation_guidelines": {
+    "project_structure_recommendation": [
+      "app/(auth)/login/page.tsx",
+      "app/(dashboard)/layout.tsx",
+      "app/(dashboard)/attendance/check-in/page.tsx",
+      "app/(dashboard)/attendance/check-out/page.tsx",
+      "app/(dashboard)/schedules/monthly/page.tsx",
+      "app/(dashboard)/leaves/page.tsx",
+      "app/api/**/route.ts",
+      "lib/auth.ts (Auth.js config)",
+      "lib/guards.ts (requireAuth/requireRole)",
+      "lib/services/** (business logic)",
+      "prisma/schema.prisma"
+    ],
+    "coding_standards": [
+      "Gunakan TypeScript strict.",
+      "Gunakan zod untuk validasi payload request.",
+      "Pisahkan logic bisnis ke service layer, jangan menumpuk di route handler.",
+      "Semua operasi kritikal gunakan transaction."
+    ]
+  },
+  "final_instruction_to_builder": "Bangun aplikasi sesuai seluruh requirement di atas. Jangan menambahkan fitur di luar scope. Pastikan rule jadwal draft/applied dan approval cuti berjenjang diterapkan ketat. Pastikan absensi wajib GPS+Selfie, validasi radius, dan menggunakan waktu server. Sertakan audit log untuk perubahan penting."
+}

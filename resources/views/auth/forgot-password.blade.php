@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - FreshHR</title>
+    <title>Lupa Password - FreshHR</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -17,7 +17,7 @@
             display: flex;
             background: #f1f5f9;
         }
-        .login-left {
+        .forgot-left {
             flex: 1;
             background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
             display: flex;
@@ -27,18 +27,18 @@
             padding: 48px;
             color: white;
         }
-        .login-left h1 {
+        .forgot-left h1 {
             font-size: 48px;
             font-weight: 800;
             margin-bottom: 16px;
             text-align: center;
         }
-        .login-left p {
+        .forgot-left p {
             font-size: 18px;
             opacity: 0.9;
             text-align: center;
         }
-        .login-right {
+        .forgot-right {
             flex: 1;
             display: flex;
             flex-direction: column;
@@ -46,17 +46,17 @@
             align-items: center;
             padding: 48px;
         }
-        .login-box {
+        .forgot-box {
             width: 100%;
             max-width: 400px;
         }
-        .login-logo {
+        .forgot-logo {
             display: flex;
             align-items: center;
             gap: 12px;
             margin-bottom: 48px;
         }
-        .login-logo-icon {
+        .forgot-logo-icon {
             width: 48px;
             height: 48px;
             background: #4ade80;
@@ -66,26 +66,27 @@
             justify-content: center;
             box-shadow: 0 10px 25px -5px rgba(74, 222, 128, 0.4);
         }
-        .login-logo-icon span {
+        .forgot-logo-icon span {
             color: white;
             font-weight: 700;
             font-size: 24px;
         }
-        .login-logo-text {
+        .forgot-logo-text {
             font-size: 24px;
             font-weight: 700;
             color: #1e293b;
         }
-        .login-title {
+        .forgot-title {
             font-size: 24px;
             font-weight: 700;
             color: #1e293b;
             margin-bottom: 8px;
         }
-        .login-subtitle {
+        .forgot-subtitle {
             font-size: 14px;
             color: #64748b;
             margin-bottom: 32px;
+            line-height: 1.6;
         }
         .form-group {
             margin-bottom: 24px;
@@ -113,7 +114,7 @@
             border-color: #4ade80;
             box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.2);
         }
-        .btn-login {
+        .btn-send {
             width: 100%;
             background: #4ade80;
             color: #1e293b;
@@ -126,7 +127,7 @@
             transition: all 0.2s;
             box-shadow: 0 10px 25px -5px rgba(74, 222, 128, 0.3);
         }
-        .btn-login:hover {
+        .btn-send:hover {
             background: #22c55e;
             transform: translateY(-2px);
         }
@@ -141,113 +142,58 @@
             align-items: center;
             gap: 8px;
         }
-        .demo-section {
-            margin-top: 32px;
-            padding-top: 32px;
-            border-top: 1px solid #e2e8f0;
-        }
-        .demo-title {
-            font-size: 11px;
-            font-weight: 600;
-            color: #64748b;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 16px;
-        }
-        .demo-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 8px;
-        }
-        .demo-btn {
-            background: white;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            padding: 12px;
-            cursor: pointer;
-            text-align: left;
-            transition: all 0.2s;
-        }
-        .demo-btn:hover {
-            border-color: #4ade80;
-            background: #f0fdf4;
-        }
-        .demo-btn-role {
-            font-size: 12px;
-            font-weight: 600;
-            color: #1e293b;
-        }
-        .demo-btn-email {
-            font-size: 11px;
-            color: #64748b;
-        }
-        .form-options {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+        .alert-success {
+            background: #dcfce7;
+            color: #15803d;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 14px;
             margin-bottom: 24px;
-        }
-        .remember-me {
             display: flex;
             align-items: center;
             gap: 8px;
-            font-size: 14px;
-            color: #64748b;
-            cursor: pointer;
         }
-        .remember-me input {
-            width: 18px;
-            height: 18px;
-            accent-color: #4ade80;
-            cursor: pointer;
-        }
-        .forgot-link {
-            font-size: 14px;
-            color: #4ade80;
-            font-weight: 600;
-            text-decoration: none;
-        }
-        .forgot-link:hover {
-            text-decoration: underline;
-        }
-        .register-link {
+        .back-link {
             text-align: center;
             margin-top: 24px;
             font-size: 14px;
             color: #64748b;
         }
-        .register-link a {
+        .back-link a {
             color: #4ade80;
             font-weight: 600;
             text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
         }
-        .register-link a:hover {
+        .back-link a:hover {
             text-decoration: underline;
         }
         @media (max-width: 768px) {
-            .login-left { display: none; }
-            .login-right { padding: 24px; }
+            .forgot-left { display: none; }
+            .forgot-right { padding: 24px; }
         }
     </style>
 </head>
 <body>
-    <div class="login-left">
+    <div class="forgot-left">
         <h1>FreshHR</h1>
         <p>Sistem Manajemen HR Modern</p>
     </div>
-    <div class="login-right">
-        <div class="login-box">
-            <div class="login-logo">
-                <div class="login-logo-icon">
+    <div class="forgot-right">
+        <div class="forgot-box">
+            <div class="forgot-logo">
+                <div class="forgot-logo-icon">
                     <span>F</span>
                 </div>
-                <span class="login-logo-text">FreshHR</span>
+                <span class="forgot-logo-text">FreshHR</span>
             </div>
-            <h2 class="login-title">Selamat Datang</h2>
-            <p class="login-subtitle">Masuk ke akun Anda untuk melanjutkan</p>
+            <h2 class="forgot-title">Lupa Password?</h2>
+            <p class="forgot-subtitle">Masukkan email Anda dan kami akan mengirimkan link untuk reset password.</p>
 
             @if(session('status'))
-                <div class="alert-success" style="background: #dcfce7; color: #15803d; padding: 12px 16px; border-radius: 12px; font-size: 14px; margin-bottom: 24px; display: flex; align-items: center; gap: 8px;">
+                <div class="alert-success">
                     <i data-lucide="check-circle" style="width: 16px; height: 16px;"></i>
                     {{ session('status') }}
                 </div>
@@ -260,68 +206,26 @@
                 </div>
             @endif
 
-            <form method="POST" action="{{ route('login') }}">
+            <form method="POST" action="{{ route('password.email') }}">
                 @csrf
                 <div class="form-group">
                     <label class="form-label">Email</label>
                     <input type="email" name="email" class="form-input" placeholder="nama@perusahaan.com" value="{{ old('email') }}" required autofocus>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Password</label>
-                    <input type="password" name="password" class="form-input" placeholder="••••••••" required>
-                </div>
-
-                <div class="form-options">
-                    <label class="remember-me">
-                        <input type="checkbox" name="remember" {{ old('remember') ? 'checked' : '' }}>
-                        <span>Ingat saya</span>
-                    </label>
-                    <a href="{{ route('password.request') }}" class="forgot-link">Lupa password?</a>
-                </div>
-
-                <button type="submit" class="btn-login">Masuk</button>
+                <button type="submit" class="btn-send">Kirim Link Reset Password</button>
             </form>
 
-            <div class="register-link">
-                Belum punya akun? <a href="{{ route('register') }}">Daftar sekarang</a>
-            </div>
-
-            <div class="demo-section">
-                <p class="demo-title">Demo Login (Satu Klik)</p>
-                <div class="demo-grid">
-                    <button type="button" class="demo-btn" onclick="loginDemo('admin@freshhr.com')">
-                        <div class="demo-btn-role">Super Admin</div>
-                        <div class="demo-btn-email">Full Access</div>
-                    </button>
-                    <button type="button" class="demo-btn" onclick="loginDemo('hr@freshhr.com')">
-                        <div class="demo-btn-role">HR Admin</div>
-                        <div class="demo-btn-email">HR Manager</div>
-                    </button>
-                    <button type="button" class="demo-btn" onclick="loginDemo('depthead@freshhr.com')">
-                        <div class="demo-btn-role">Dept Head</div>
-                        <div class="demo-btn-email">Approval</div>
-                    </button>
-                    <button type="button" class="demo-btn" onclick="loginDemo('employee@freshhr.com')">
-                        <div class="demo-btn-role">Employee</div>
-                        <div class="demo-btn-email">Karyawan</div>
-                    </button>
-                </div>
+            <div class="back-link">
+                <a href="{{ route('login') }}">
+                    <i data-lucide="arrow-left" style="width: 16px; height: 16px;"></i>
+                    Kembali ke Login
+                </a>
             </div>
         </div>
     </div>
 
     <script>
         lucide.createIcons();
-
-        function loginDemo(email) {
-            const form = document.querySelector('form');
-            const emailInput = document.querySelector('input[name="email"]');
-            const passwordInput = document.querySelector('input[name="password"]');
-
-            emailInput.value = email;
-            passwordInput.value = 'password';
-            form.submit();
-        }
     </script>
 </body>
 </html>
